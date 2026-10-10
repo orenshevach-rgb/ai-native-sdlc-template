@@ -50,8 +50,9 @@ not prose.
 When the user gives a goal or idea and there is no workflow in place yet:
 
 1. Scaffold the artifact skeleton with `scripts/init_workflow.py <project-dir> --name "<project name>" --framework codex|claude` (codex writes AGENTS.md, claude writes CLAUDE.md), or copy templates from `assets/` into an existing repo.
-2. Run **Plan**: interview the user with analyst-style questions — what cannot be done today, who is affected, what success looks like, constraints, what is out of scope — until the idea is concrete.
-3. Write `intent/intent.md` from the template, commit it, and ask the product owner to accept or reject. Acceptance triggers Design.
+2. Run **Plan**: ask the originator at least one substantive clarifying question before drafting the intent. Cover the problem, affected users, observable success, constraints, and out of scope; ask follow-ups wherever the answer changes scope. Do not turn guesses into requirements or treat silence as agreement.
+3. Draft `intent/intent.md` from the template. In **User Outcomes**, write one or more separate user stories — "As a <user>, I can <capability>, so I can <benefit>" — rather than a feature checklist. Record the questions actually asked and the originator's answers in **User refinement**. Present unresolved questions to the originator; record each answer or explicit deferral to Design. Keep unanswered, decision-blocking questions visible and remain in Draft.
+4. Show the draft to the originator, incorporate corrections, then commit it and ask the product owner to accept or reject. Acceptance, recorded at the intent gate, triggers Design. Do not request acceptance while a decision-blocking question remains unanswered.
 
 If the user is already inside a later phase (for example, "review this PR" or "diagnose this incident"), start at that phase instead.
 
@@ -64,7 +65,7 @@ At a glance:
 | Phase | Reads | Produces | Gate (human approval) |
 |---|---|---|---|
 | Plan | user's idea | intent.md | accepted → Design |
-| Design | intent.md + org standards | spec.md | approved → Build |
+| Design | intent.md + org standards | spec.md (PRD) | approved → Build |
 | Build | intent.md + spec.md | plan.md → code + tests → PR | plan approved before code; PR merged → Deploy |
 | Test | repo + eval suite | eval results, regression evals | config changes that drop pass rate are reviewed |
 | Deploy | merged PR + review findings | authorized release | agentic review + explicit release authorization |
@@ -95,8 +96,8 @@ The scaffold script copies the core skeleton into a new project (`intent.md`,
 are produced by the workflow itself during Design and Build — copy the blank
 forms only when you want them as starting points:
 
-- `assets/intent.md` — intent capture (problem, proposed outcome, affected users/systems, constraints, out of scope, open questions)
-- `assets/spec.md` — requirements + design specification with gotchas (produced during Design)
+- `assets/intent.md` — intent capture (problem, one or more user outcomes, affected users/systems, constraints, out of scope, open questions)
+- `assets/spec.md` — product requirements and design template with outcome-level acceptance criteria; AI failure and evaluation sections apply only to products with AI outputs (produced during Design)
 - `assets/plan.md` — build plan (files, order, risks, proof, verification) (produced during Build)
 - `assets/CLAUDE.md` — repository-memory starter (commands, verification, conventions, common mistakes)
 - `assets/REVIEW.md` — review standards (passes, evidence, severity, 5-nit cap)

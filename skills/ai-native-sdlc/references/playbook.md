@@ -33,12 +33,12 @@ Each play below covers: what changes, getting started (prerequisites and infrast
 **How to execute it.**
 
 1. The originator describes the problem in their own words — what cannot be done today, who is affected, what better looks like, what is out of scope. No formal language required.
-2. Brainstorm until the idea is concrete: the agent asks the questions an analyst would ask (scope, users, constraints, what success looks like).
-3. Write the result as intent.md using the org template (which can be encoded as a skill). It points straight at the sources: the problem, proposed outcome, affected users and systems, constraints, out of scope, and open questions. Fields are structured enough for the agent to act on them directly, and plain enough for the product owner to review without engineering knowledge.
-4. The originator corrects anything the agent misunderstood.
-5. Commit intent.md to the shared home. Author and timestamp join the record, and the product owner picks it up from there.
+2. Before drafting, ask the originator at least one substantive question about the problem, users, success measure, constraints, or scope. Ask follow-ups until the choices that shape the outcome are clear. A suggested default is a proposal, not an answer; wait for the originator's response before treating it as a requirement.
+3. Write the result as intent.md using the org template (which can be encoded as a skill). It points straight at the sources: the problem, one or more user outcomes, affected users and systems, constraints, out of scope, and open questions. Under **User Outcomes**, write each outcome as a separate "As a <user>, I can <capability>, so I can <benefit>" statement; leave feature details and acceptance criteria for spec.md. In **User refinement**, record the material questions asked and the originator's answers or explicit decisions to defer. Do not invent answers to complete the record.
+4. Present the draft and every remaining open question to the originator. Mark questions that block intent acceptance separately from those the originator explicitly defers to Design. Revise the draft as the originator corrects it; do not infer acceptance from silence.
+5. Once no decision-blocking question remains, commit intent.md to the shared home. Author and timestamp join the record, and the product owner picks it up from there. The product owner's acceptance or rejection is the gate into Design.
 
-**Governance.** The evidence is the committed intent.md with its full revision history. The product owner approves; the accept-or-reject decision that sends the intent into Design is recorded as the merge or the closing review.
+**Governance.** The evidence is the committed intent.md with its user-refinement record and full revision history. At the intent gate, the product owner reviews the answers, explicit deferrals, and remaining open questions before accepting or rejecting. The decision that sends the intent into Design is recorded as the merge or the closing review. The gate verifies the approval decision; the product owner verifies the quality of the clarification record.
 
 **Measure.** Leading: time from first conversation to a committed intent.md, read from git history (expectation: weeks → hours). Lagging: survival rate — the share of intents the product owner accepts into Design rather than closes — and the number of changes made to intent.md after the first spec.md commit for the same change.
 
@@ -52,6 +52,7 @@ Each play below covers: what changes, getting started (prerequisites and infrast
 
 1. The product owner opens a session with the organization's skills available and attaches the intent.md.
 2. Prompt: "Read the attached intent.md and produce a requirements and design spec for integrating it into our existing codebase. Apply the skills available to you so the plan conforms to our brand guidelines, security policies and UX standards. Document the spec fully as spec.md, ready to hand to the engineering team. Describe clearly any areas of concern, especially where you cannot satisfy contradicting policies."
+   Structure `spec.md` as a PRD: Overview; Outcomes with separate acceptance criteria for every outcome in `intent.md`; Non functional requirements; Out of scope; Designs; Open issues; Verification plan; and Other for relevant decisions, risks, dependencies, and standards. For products that produce AI outputs, add AI Failure Modes (output, failure mode, likelihood, impact, mitigation), an Evaluation Plan (each output and what quality means), and an Evaluation Rubric (good, subtly wrong or plausible-but-wrong, clearly broken for each output). Omit those three AI sections when the product has no AI outputs.
 3. Run by hand first; codify as an organization-level slash command; then make acceptance of intent.md the trigger — a non-interactive job fires on the merge, runs the pass with the organization's skills loaded, and commits spec.md as a pull request. From then on, the product owner's first involvement is the review.
 4. The product owner reviews the spec against the intent: does it solve the stated problem? Are the open questions answered or carried forward? Work through flagged concerns with their policy owners before engineering sees the spec.
 5. Commit spec.md alongside intent.md. The file pair records what was asked for and what was decided.
@@ -186,7 +187,7 @@ Run the agent non-interactively in the pipeline for judgment steps — triage a 
 2. Write the detection script: mean and standard deviation over a rolling window with Western Electric rules, so the bands catch slow drift as well as spikes. The script is version controlled and unit tested; detection stays deterministic, with no model involved.
 3. Define response tiers in version-controlled config (`bands.yaml`): at 1σ log only; at 2σ invoke the agent read-only to diagnose; at 3σ the agent may act, but only by opening a PR into the review gate or triggering a pre-approved runbook.
 4. The agent runs stateless and non-interactive. Because nothing needs a person to start it, the loop can begin and end on its own.
-5. The agent writes its diagnosis as intent.md in the Plan format — the anomaly and its evidence, a proposed outcome, affected systems, open questions — and it flows through the pipeline like anything else.
+5. The agent writes its diagnosis as intent.md in the Plan format — the anomaly and its evidence, desired user outcomes, affected systems, open questions — and it flows through the pipeline like anything else.
 6. The service owner or on-call engineer triages the queue: fix now, schedule, or dismiss. Dismissals tune the bands and reduce noise.
 7. When a fix ships, add an eval for the incident so the class of issue is protected going forward.
 

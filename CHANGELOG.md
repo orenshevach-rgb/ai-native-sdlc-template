@@ -8,6 +8,13 @@ semver; keep `plugin.json` and the `version` field in SKILL.md in sync
 
 ### Added
 
+- Plan-stage clarification record in the intent template, with an explicit
+  requirement to ask the originator substantive questions, present unresolved
+  questions, and resolve or defer them before intent acceptance.
+- A **User Outcomes** section in the intent template and Plan instructions that
+  supports one or more benefit-focused user stories; the worked example shows two.
+- PRD-shaped `spec.md` template with acceptance criteria per outcome, an Other
+  section in place of Gotchas, and conditional AI failure and evaluation sections.
 - Deterministic workflow state runtime (`scripts/workflow_state.py`): `status`
   reports pipeline state and drift warnings, `advance` closes a graph node only
   through a matching chain-verified ledger record, and `check` validates graph

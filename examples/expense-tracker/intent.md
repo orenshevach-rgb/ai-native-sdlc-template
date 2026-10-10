@@ -9,9 +9,10 @@
 
 Employees submit expense reports by emailing PDFs to finance. Approvers spend roughly a third of their time matching receipts to policy rules by hand, and employees can't see where a report stands.
 
-## Proposed outcome
+## User Outcomes
 
-Employees submit expenses in a web app; the app applies policy rules and shows status, next step, and expected date. Approvers see a prioritized queue with policy violations flagged.
+- As an employee, I can submit an expense and see its status, next step, and expected date, so I know what to do and when to expect a decision.
+- As an approver, I can see a prioritized queue with policy violations flagged, so I can review reports quickly and consistently.
 
 ## Affected users and systems
 
