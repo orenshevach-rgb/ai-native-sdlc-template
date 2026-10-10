@@ -71,6 +71,8 @@ At a glance:
 | Deploy | merged PR + review findings | authorized release | agentic review + explicit release authorization |
 | Maintain | production metrics | diagnosis → new intent.md | on-call triage: fix, schedule, or adjust thresholds |
 
+For Design, use `assets/spec.md` as the PRD contract: map every accepted user outcome to its own acceptance criteria, record non functional requirements and open issues, and connect the verification plan to the criteria. Include AI Failure Modes, Evaluation Plan, and Evaluation Rubric only when the product produces AI outputs. At Build and review, use those criteria and any product AI rubric as the proof target; Phase 4's agent-configuration evals are a separate check.
+
 ## Graph engineering
 
 The loop is a directed graph, not a linear pipeline: plays and artifacts are nodes, gates are the human approval points, and triggers are the edges that fire the next stage. Treating the workflow as a graph makes it automatable (accepted artifacts fire the next gate), parallelizable (independent branches run in separate worktrees), and auditable (node history is the record). The plays also form a separate adoption graph — start at the leaf plays and build outward. Read `references/graph.md` when designing or automating how phases trigger each other; the machine-readable form ships in `assets/workflow-graph.example.yaml`.

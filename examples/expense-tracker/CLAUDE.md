@@ -14,6 +14,13 @@ Keep this file under one page. Add a rule when the same mistake happens twice.
 Run build, test, and lint before reporting any task complete, and paste the output.
 If a test fails, fix the code, not the test.
 
+## Artifact handoffs
+
+- Read the accepted intent and approved `spec.md` PRD before planning. Map
+  each outcome's acceptance criteria to plan proof and tests.
+- This expense tracker has no product AI outputs, so its PRD does not need AI
+  Failure Modes, Evaluation Plan, or Evaluation Rubric sections.
+
 ## Conventions
 
 - TypeScript/React on the portal, FastAPI for claims-api. No new state management library.

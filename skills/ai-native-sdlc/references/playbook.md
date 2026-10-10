@@ -58,6 +58,8 @@ Each play below covers: what changes, getting started (prerequisites and infrast
 5. Commit spec.md alongside intent.md. The file pair records what was asked for and what was decided.
 6. A human decides whether the spec and intent progress to Build, consulting a technical lead for anything classed as higher risk.
 
+**Using the PRD.** The writer maps each accepted intent outcome to observable acceptance criteria and carries constraints into Non functional requirements and Out of scope. Open issues name an owner and resolution path; Other holds standards applied, dependencies, and trade-offs. For an AI product, enumerate each product AI output in AI Failure Modes, Evaluation Plan, and Evaluation Rubric; use the same output names across all three. The reviewer checks outcome coverage, testability, unresolved issues, and the AI sections when applicable. Peer review does not replace the product owner's spec-approval gate.
+
 **Governance.** Live policy is read and applied while the spec is written; the organization's skills act as constraints. The spec, the prompt that produced it, and the skill versions in force are all logged in version control. The product owner signs off and routes flagged concerns to named policy owners.
 
 **Measure.** Leading: elapsed time between the intent.md commit and the spec.md commit, compared with the old requirements-plus-design cycle. Lagging: requirements rework after build starts — spec.md commits dated after the first plan.md commit for the same change.
@@ -69,6 +71,8 @@ Each play below covers: what changes, getting started (prerequisites and infrast
 ### Plan mode first
 
 The engineer starts the session in plan mode, gives the agent intent.md and spec.md, and asks for an implementation plan naming the files that change, the order of work, and the tests that prove it. Interrogate the plan: what could this break, which step is most risky, what options were rejected? Iterate until an engineer who has never seen the conversation could implement the change from the plan alone. Commit the approved plan as plan.md; the review pass in Phase 5 checks the eventual diff against it. When implementation departs from the plan, update plan.md in the same commit — consider a hook that enforces synchronization.
+
+Use the approved PRD's acceptance criteria as the plan's proof checklist. Cover non functional requirements in verification, resolve or explicitly carry open issues, and include product AI evaluations against the PRD rubric when AI outputs exist.
 
 plan.md contents: files that change; order of work; risks; proof (tests that cover the change; screenshot matching the approved mock where relevant).
 
@@ -147,6 +151,8 @@ A GitHub Actions example ships in `assets/agent-evals.yml.example`.
 
 **Governance.** The pass-rate threshold is enforced as a merge check; runs are logged so results compare over time; the team owning the configuration change approves it. QA shifts from manual testing to maintaining eval cases. Human acceptance criteria remain final; don't over-rely on LLM-as-judge.
 
+The AI Evaluation Plan in a product PRD evaluates the product's outputs. It is separate from this phase's eval suite, which checks whether changes to the coding agent's prompts, skills, models, or hooks degrade its work. Run both when both apply.
+
 **Measure.** Leading: eval pass rate over time, and how long a production incident takes to become a permanent eval. Lagging: regressions caught in CI versus regressions found in production.
 
 ## Phase 5 — Deploy: review runs both ways, and the agent stops at the production gate
@@ -156,6 +162,8 @@ A GitHub Actions example ships in `assets/agent-evals.yml.example`.
 ### AI in the PR review loop
 
 Every PR gets the same review passes — bugs and logic errors, security and vulnerabilities, compliance against spec.md, plan.md, and design principles — with findings ranked by severity. The tech lead writes the policy as REVIEW.md at the repo root: what counts as Important versus a Nit, what to skip (generated paths, anything CI already enforces), and the cap of five nits per review. Findings do not approve or block a PR on their own; branch protection still requires code owner approval, so the agent that wrote the code cannot approve it.
+
+For compliance, trace each implemented outcome to its PRD acceptance criteria and verification evidence. For products with AI outputs, check failure-mode mitigations and the Evaluation Plan and Rubric results, including plausible-but-wrong cases.
 
 Reviews are bidirectional: the agent reviews incoming PRs and addresses review comments on its own PRs (for example, @claude on a comment triggers a fix and push; a slash command can babysit the PR through failing checks until it waits only on code owner approval). When a review flags a mistake for the second time, the correction goes into CLAUDE.md as part of that review. The tech lead tunes the setup monthly by rating findings and capping nit volume.
 

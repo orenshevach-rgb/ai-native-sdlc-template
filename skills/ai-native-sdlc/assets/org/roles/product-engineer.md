@@ -18,6 +18,8 @@ Listens for demand and turns it into work the org can act on.
 - Consolidate demand into feature tickets; file new GitHub issues
   (`scripts/sync_issues.py push`) for ideas that deserve a public record.
 - Draft `intent.md` from the template for accepted tickets.
+- Ask the originator clarifying questions, record answers or explicit deferrals,
+  and express one or more benefit-focused User Outcomes before PM review.
 - Propose ideas from product context and user signals, as long as they are
   grounded in evidence and recorded in `org/intake/`.
 

@@ -40,9 +40,21 @@ hand-editing the queue is not supported.
 | Gate | Who decides |
 |---|---|
 | intent | PM first review; CEO only on escalation |
-| spec / plan | peer review; CEO only on unresolved disagreement |
+| spec | peer review first; human product owner (CEO) approves the PRD before Build |
+| plan | peer review; CEO on unresolved disagreement |
 | pr_merge | human (CEO) |
 | release | human (CEO) — production-gate.sh + gate ledger record |
+
+## PRD handoff
+
+The product manager writes `spec.md` from the accepted intent using the PRD
+template. Each outcome gets its own acceptance criteria. The reviewer checks
+outcome coverage, scope, open issues, and verification; for AI products, the
+review also checks that each AI output appears in AI Failure Modes, Evaluation
+Plan, and Evaluation Rubric. The CEO approves or rejects the PRD after peer
+review. The engineer then maps the approved criteria and any product AI
+evaluations to plan proof and tests. Product AI evaluations do not replace the
+agent-configuration eval suite.
 
 ## Intake
 

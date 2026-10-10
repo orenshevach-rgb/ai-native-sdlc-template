@@ -8,6 +8,7 @@ This repo is a reusable skill and plugin bundle implementing the AI-native SDLC 
 - Templates in `skills/ai-native-sdlc/assets/` are copied into target projects — never edited to fit one project.
 - `skills/ai-native-sdlc/scripts/init_workflow.py` performs that copy; change the script when the scaffold layout changes.
 - `skills/ai-native-sdlc/scripts/init_org.py` scaffolds the optional agent org (roles, protocol, intake); change it when the org templates change.
+- When an artifact format changes, update the skill, playbook, relevant role cards and review rules, and worked examples together. Generated project copies do not update automatically.
 
 ## Validation
 

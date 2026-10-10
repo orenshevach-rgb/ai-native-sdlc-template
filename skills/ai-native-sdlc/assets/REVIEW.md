@@ -10,6 +10,14 @@ Run three passes and tag each finding with its pass:
 - Security: injection risks, authentication gaps, PII in logs
 - Compliance: the change matches spec.md, plan.md, and our design principles
 
+For `spec.md` reviews, confirm that every accepted intent outcome has testable
+acceptance criteria, non functional requirements and out-of-scope items agree
+with the intent, and open issues have owners. If the product produces AI
+outputs, check that every output appears in AI Failure Modes, Evaluation Plan,
+and Evaluation Rubric with plausible-but-wrong cases. For implementation
+reviews, cite the PRD criteria and verification evidence; check product AI
+evaluations separately from agent-configuration evals.
+
 ## What Important means here
 
 Reserve Important for findings that would break behavior, leak data, or breach a policy. Style and naming are nits.

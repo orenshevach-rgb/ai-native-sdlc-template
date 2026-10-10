@@ -68,13 +68,21 @@ security, compliance), evidence required, at most 5 nits per review.
 | Gate | Who decides |
 |---|---|
 | Intent | Product manager first; CEO on ambiguity |
-| Spec / plan | Peer review; CEO after two unresolved disagreement rounds |
+| Spec | Peer review, then human product owner (CEO) approval before Build |
+| Plan | Peer review; CEO after two unresolved disagreement rounds |
 | PR merge | Human (CEO) |
 | Release | Human (CEO) — production-gate.sh + gate ledger record |
 
 The org is autonomous *within* the loop: agents generate, verify, review, and
 report; humans hold the gates above. Nothing skips a gate when no human is
 available — the loop pauses.
+
+For Design, the product manager turns the accepted intent into the `spec.md`
+PRD. A reviewer checks acceptance criteria for every outcome, open-issue
+ownership, and verification. AI products also need aligned AI Failure Modes,
+Evaluation Plan, and Evaluation Rubric for each product AI output. The CEO
+approves the PRD after peer review; the engineer uses its criteria and any
+product AI evaluations as proof targets in the build plan.
 
 ## Intake
 

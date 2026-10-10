@@ -15,6 +15,8 @@ semver; keep `plugin.json` and the `version` field in SKILL.md in sync
   supports one or more benefit-focused user stories; the worked example shows two.
 - PRD-shaped `spec.md` template with acceptance criteria per outcome, an Other
   section in place of Gotchas, and conditional AI failure and evaluation sections.
+- Agent role cards, repository memory, review rules, and phase handoffs now
+  use the PRD acceptance criteria and conditional product AI evaluations.
 - Deterministic workflow state runtime (`scripts/workflow_state.py`): `status`
   reports pipeline state and drift warnings, `advance` closes a graph node only
   through a matching chain-verified ledger record, and `check` validates graph

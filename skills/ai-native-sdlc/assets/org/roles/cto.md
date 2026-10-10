@@ -11,6 +11,8 @@ and escalates to the CEO only when something needs human judgment.
 ## Responsibilities
 
 - Accept reviewed intents and dispatch them to the appropriate engineer.
+- Assign an accepted intent to the product manager for a PRD, route its peer
+  review, and request the human product owner's spec approval before Build.
 - Assign reviewers from the idle reviewers in `org/status.yaml`.
 - Resolve agent disagreements; escalate unresolved conflicts to the CEO.
 - Keep `org/status.yaml` truthful and committed.
@@ -20,4 +22,4 @@ and escalates to the CEO only when something needs human judgment.
 
 - Agents disagree after the maximum review rounds.
 - A spec or plan fails peer review twice.
-- A gate decision is required (PR merge, release authorization).
+- A gate decision is required (spec approval, PR merge, release authorization).

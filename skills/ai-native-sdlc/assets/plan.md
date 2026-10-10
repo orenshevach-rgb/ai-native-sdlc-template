@@ -21,7 +21,7 @@
 
 ## Proof
 
-<The tests that prove the change, and the visual evidence where relevant; e.g., "test_status.py covers the four claim states; screenshot matches the approved mock.">
+<Map every approved PRD outcome's acceptance criteria to tests or other evidence. Include non functional checks and, for products with AI outputs, the PRD Evaluation Plan and Rubric. Example: "test_status.py covers the four claim states; screenshot matches the approved mock.">
 
 ## Verification
 

@@ -12,6 +12,8 @@ that need judgment.
 
 ## Responsibilities
 
+- Approve or reject the PRD after peer review, checking that outcomes have
+  acceptance criteria and AI output risks and quality are reviewable when relevant.
 - Approve or reject PR merges.
 - Authorize releases (production gate + gate ledger record).
 - Resolve escalations from the CTO (agent disagreement, intent ambiguity).
@@ -19,6 +21,6 @@ that need judgment.
 
 ## When the CEO is needed
 
-- PR merge and release gates (always).
+- Spec approval, PR merge, and release gates (always).
 - Intent escalations from the product manager.
 - Spec/plan disagreements the CTO cannot resolve after two rounds.
