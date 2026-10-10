@@ -16,7 +16,8 @@ with the intent, and open issues have owners. If the product produces AI
 outputs, check that every output appears in AI Failure Modes, Evaluation Plan,
 and Evaluation Rubric with plausible-but-wrong cases. For implementation
 reviews, cite the PRD criteria and verification evidence; check product AI
-evaluations separately from agent-configuration evals.
+evaluations separately from agent-configuration evals. Check implementation
+paths against the approved plan using Git repository root paths.
 
 ## What Important means here
 

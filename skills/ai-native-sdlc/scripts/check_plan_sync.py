@@ -17,7 +17,9 @@ Usage:
 
 PR mode defaults to a three-dot diff (merge-base). Hook mode validates the
 staged diff (HEAD vs index) and reads plan.md from the index. Ledger chain
-verification is delegated to gate_ledger.py.
+verification is delegated to gate_ledger.py. Run from the project directory;
+manifest paths are relative to the Git repository root, including the project
+prefix when the project lives in a subdirectory.
 
 Exit codes: 0 = pass, 1 = violation, 2 = usage error.
 """
@@ -81,10 +83,11 @@ def _git(repo: Path, args: list[str]) -> tuple[bool, str]:
     return True, res.stdout
 
 
-def _is_process_path(path: str, ignores: list[str]) -> bool:
-    if any(fnmatch.fnmatch(path, pattern) for pattern in ignores):
+def _is_process_path(path: str, ignores: list[str], prefix: str = "") -> bool:
+    relative = path[len(prefix):] if prefix and path.startswith(prefix) else path
+    if any(fnmatch.fnmatch(candidate, pattern) for candidate in (path, relative) for pattern in ignores):
         return True
-    normalized = path.lstrip("./")
+    normalized = relative.lstrip("./")
     for entry in PROCESS_ENTRIES:
         if entry.endswith("/"):
             if normalized == entry.rstrip("/") or normalized.startswith(entry):
@@ -109,8 +112,13 @@ def _changed_files_hook(repo: Path) -> tuple[bool, list[str] | str]:
     return True, [line for line in out.splitlines() if line.strip()]
 
 
-def _show(repo: Path, spec: str) -> tuple[bool, str]:
-    return _git(repo, ["show", f"{spec}:plan.md"])
+def _show(repo: Path, spec: str, prefix: str = "") -> tuple[bool, str]:
+    return _git(repo, ["show", f"{spec}:{prefix}plan.md"])
+
+
+def _project_paths(changed: list[str], prefix: str) -> list[str]:
+    """Git paths are root-relative even when the checker runs in a subdirectory."""
+    return [path for path in changed if not prefix or path.startswith(prefix)]
 
 
 def _manifest_entries(text: str) -> list[str]:
@@ -235,9 +243,10 @@ def _check(
     graph_path: str | None,
     ignores: list[str],
     hook_mode: bool,
+    prefix: str = "",
 ) -> int:
     implementation = [
-        path for path in changed if not _is_process_path(path, ignores)
+        path for path in changed if not _is_process_path(path, ignores, prefix)
     ]
     if not implementation:
         return 0
@@ -285,7 +294,7 @@ def _check(
                 return 1
 
     if plan_diff_base is not None:
-        old_ok, old_text = _show(repo, plan_diff_base)
+        old_ok, old_text = _show(repo, plan_diff_base, prefix)
         if not old_ok:
             old_text = None
     else:
@@ -311,11 +320,17 @@ def _check(
 
 
 def cmd_pr(args: argparse.Namespace, repo: Path) -> int:
+    prefix_ok, prefix = _git(repo, ["rev-parse", "--show-prefix"])
+    if not prefix_ok:
+        print(f"error: cannot locate project in Git repository: {prefix}", file=sys.stderr)
+        return 1
+    prefix = prefix.strip()
     ok, changed = _changed_files_pr(repo, args.base, args.head, args.two_dot)
     if not ok:
         print(f"error: git diff failed: {changed}", file=sys.stderr)
         return 1
-    ok, head_plan = _show(repo, args.head)
+    changed = _project_paths(changed, prefix)
+    ok, head_plan = _show(repo, args.head, prefix)
     if not ok:
         head_plan = ""
     if not head_plan.strip():
@@ -329,15 +344,22 @@ def cmd_pr(args: argparse.Namespace, repo: Path) -> int:
         args.graph,
         args.ignore,
         hook_mode=False,
+        prefix=prefix,
     )
 
 
 def cmd_hook(args: argparse.Namespace, repo: Path) -> int:
+    prefix_ok, prefix = _git(repo, ["rev-parse", "--show-prefix"])
+    if not prefix_ok:
+        print(f"error: cannot locate project in Git repository: {prefix}", file=sys.stderr)
+        return 1
+    prefix = prefix.strip()
     ok, changed = _changed_files_hook(repo)
     if not ok:
         print(f"error: git diff failed: {changed}", file=sys.stderr)
         return 1
-    ok, staged_plan = _show(repo, "")
+    changed = _project_paths(changed, prefix)
+    ok, staged_plan = _show(repo, "", prefix)
     if not ok:
         staged_plan = ""
     if not staged_plan.strip():
@@ -346,7 +368,7 @@ def cmd_hook(args: argparse.Namespace, repo: Path) -> int:
         # Only fail when implementation files actually need a plan; process-only
         # changes pass in cmd_pr/_check before this branch.
         implementation = [
-            path for path in changed if not _is_process_path(path, args.ignore)
+            path for path in changed if not _is_process_path(path, args.ignore, prefix)
         ]
         if implementation:
             print(
@@ -364,6 +386,7 @@ def cmd_hook(args: argparse.Namespace, repo: Path) -> int:
         args.graph,
         args.ignore,
         hook_mode=True,
+        prefix=prefix,
     )
 
 

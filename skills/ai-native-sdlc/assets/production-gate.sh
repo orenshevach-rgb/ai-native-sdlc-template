@@ -18,13 +18,13 @@
 #                           blocked (default below).
 #
 # Design notes:
-#   - Read-only commands are allowed first, so the gate punishes the *action*,
-#     not the word ("cat docs/production-deploy.md" is a read, not a deploy).
+#   - A simple read-only command is allowed first, so the gate punishes the
+#     *action*, not the word ("cat docs/production-deploy.md" is a read).
 #   - Unknown commands are allowed: this gate is deploy-focused, not a general
 #     command denylist. Production-grade setups should extend DEPLOY_PATTERNS
 #     with every deploy tool the org uses.
-#   - Compound commands ("cmd1 && cmd2") are matched as a whole string; for a
-#     stricter gate, match per command token.
+#   - Compound commands are never exempted by the read-only allowlist. Deploy
+#     detection still matches the whole command; adapt patterns for your tools.
 set -euo pipefail
 
 DEPLOY_PATTERNS="${DEPLOY_PATTERNS:-kubectl[[:space:]]+(apply|create|delete|edit|rollout|scale|set|patch|run|deploy)|helm[[:space:]]+(upgrade|install|rollback|uninstall)|terraform[[:space:]]+(apply|destroy|import)|flyctl[[:space:]]+(deploy|launch|release)|serverless[[:space:]]+deploy|sls[[:space:]]+deploy|sam[[:space:]]+deploy|aws[[:space:]]+(deploy|ecs|eks|lambda[[:space:]]+update-function)|cdk[[:space:]]+deploy|docker[[:space:]]+(push|compose[[:space:]]+up)|(^|[^[:alnum:]_])deploy([^[:alnum:]_]|$)}"
@@ -68,8 +68,16 @@ fi
 
 [[ -z "$cmd" ]] && { echo "ALLOW"; exit 0; }
 
-# Read-only commands never trip the gate.
-if printf '%s' "$cmd" | grep -Eq "$READ_ONLY_PATTERNS"; then
+# Only a simple read-only command bypasses deploy detection. A read followed
+# by a deploy (or a command substitution) must reach the production check.
+_simple_read_only() {
+  [[ "$cmd" != *$'\n'* ]] || return 1
+  if printf '%s' "$cmd" | grep -Eq '[;&|$`<>]'; then
+    return 1
+  fi
+  printf '%s' "$cmd" | grep -Eq "^[[:space:]]*($READ_ONLY_PATTERNS)([[:space:]]|$)"
+}
+if _simple_read_only; then
   echo "ALLOW"
   exit 0
 fi
@@ -95,7 +103,7 @@ if [[ -z "$approval" ]]; then
 fi
 
 # Ledger-backed approval: RELEASE_APPROVAL=ledger:<id> must match a verified,
-# unexpired, committed record in gates/ledger.jsonl (see gate_ledger.py).
+# unexpired, committed release_authorization record in gates/ledger.jsonl.
 if [[ "$approval" == ledger:* ]]; then
   ledger_id="${approval#ledger:}"
   hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -110,7 +118,7 @@ if [[ "$approval" == ledger:* ]]; then
     echo "BLOCK: ledger verification requires python3." >&2
     exit 2
   fi
-  if ! out="$(python3 "$ledger_script" --ledger "$ledger_file" verify --record "$ledger_id" --require-committed 2>&1)"; then
+  if ! out="$(python3 "$ledger_script" --ledger "$ledger_file" verify --record "$ledger_id" --gate release_authorization --require-committed 2>&1)"; then
     echo "BLOCK: ledger record $ledger_id failed verification: $out" >&2
     exit 2
   fi

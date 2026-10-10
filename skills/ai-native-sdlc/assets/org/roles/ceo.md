@@ -16,6 +16,8 @@ that need judgment.
   acceptance criteria and AI output risks and quality are reviewable when relevant.
 - Approve or reject PR merges.
 - Authorize releases (production gate + gate ledger record).
+- Decide explicitly when a project ends after merge with no deployment;
+  record that scope decision without authorizing a release.
 - Resolve escalations from the CTO (agent disagreement, intent ambiguity).
 - Decide what the org builds next, informed by the product engineering agent.
 

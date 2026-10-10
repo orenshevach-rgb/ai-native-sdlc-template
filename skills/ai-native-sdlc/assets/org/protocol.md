@@ -45,6 +45,11 @@ hand-editing the queue is not supported.
 | pr_merge | human (CEO) |
 | release | human (CEO) — production-gate.sh + gate ledger record |
 
+If the CEO ends a project after merge, record a rejected release decision and
+remove release and production monitoring nodes from that project's graph. The
+production hook must still block deployment; a future release needs a new
+authorization.
+
 ## PRD handoff
 
 The product manager writes `spec.md` from the accepted intent using the PRD

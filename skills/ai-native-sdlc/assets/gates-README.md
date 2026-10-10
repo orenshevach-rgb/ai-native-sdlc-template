@@ -7,7 +7,15 @@ merge, **release authorization**, on-call triage — is a record in
 to a past record breaks the chain and fails `verify`.
 
 The release gate hook accepts `RELEASE_APPROVAL=ledger:<record-id>` and
-verifies the record before allowing a production deploy.
+verifies that the record is an approved `release_authorization` decision before
+allowing a production deploy. An approval for another gate cannot authorize a
+release.
+
+Copying the hook does not activate it. Wire it into the agent's tool-use policy
+or the deployment pipeline, and protect who may commit release approvals. The
+free-form `RELEASE_APPROVAL=<ticket-or-signer>` path is an example stand-in for
+a trusted approval service; use ledger-backed or service-verified approvals for
+an enforced release gate.
 
 ## Record an approval
 
@@ -33,12 +41,22 @@ git add gates/ledger.jsonl && git commit -m "gates: record release authorization
 
 ```bash
 python3 scripts/gate_ledger.py verify --record release_authorization-001 \
+  --gate release_authorization \
   --require-committed --graph workflow-graph.yaml --require-gates
 ```
 
 - `--require-committed` — fail unless the ledger is committed and clean.
+- `--gate` — fail if the record belongs to another gate.
 - `--graph … --require-gates` — fail unless every gate in the workflow graph
   has at least one recorded decision (governance completeness check).
+
+## A project with no deployment
+
+If the project owner explicitly ends a demo after merge, record the scope
+decision as `--gate release_authorization --decision rejected` with evidence.
+This records that no release was authorized; the production hook rejects the
+record. Remove the release and downstream production nodes from that project's
+workflow graph. A later deployment needs a fresh, approved release record.
 
 ## Tamper detection
 

@@ -39,6 +39,18 @@ Graph nodes carry `status` (working state) plus an optional `done_status`
 gate does not match the node, re-advancing an already-done node, or firing an
 edge without approval; it does not auto-start downstream nodes.
 
+### Ending a project before production
+
+The full loop is a reference graph. If the human owner explicitly decides that
+deployment is outside a project's scope, record that decision in its gate
+ledger as a **rejected** `release_authorization` (with evidence explaining the
+scope choice). In that project's copy of `workflow-graph.yaml`, remove the
+release node and downstream production monitoring nodes and edges. The graph
+then ends at the merged implementation. Keep the shared graph template intact.
+Do not set a release node to `done`, create an approved release record, or
+describe a local test server as a production release. A future deployment
+requires a defined target, a restored release node, and fresh human approval.
+
 ## The adoption graph
 
 The plays also form a dependency graph for adoption, separate from the runtime order. Start at a leaf play — nothing points into it: capture intent, CLAUDE.md, feedback loop, build-time hooks, plan mode. Then adopt the plays that depend on them: skills, subagents, continuous evals; then requirements and design and PR review; then CI/CD and approval gates; and finally close the loop. Adopting in this order means every new play arrives with its prerequisites already in place.

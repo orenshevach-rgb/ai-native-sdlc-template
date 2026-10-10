@@ -73,6 +73,8 @@ At a glance:
 
 For Design, use `assets/spec.md` as the PRD contract: map every accepted user outcome to its own acceptance criteria, record non functional requirements and open issues, and connect the verification plan to the criteria. Include AI Failure Modes, Evaluation Plan, and Evaluation Rubric only when the product produces AI outputs. At Build and review, use those criteria and any product AI rubric as the proof target; Phase 4's agent-configuration evals are a separate check.
 
+If a project deliberately ends before production, record the human scope decision and tailor that project's graph to stop at the last completed node. Do not mark a skipped release as authorized or reuse its decision as deployment approval; any later deployment needs a new release gate. See `references/graph.md`.
+
 ## Graph engineering
 
 The loop is a directed graph, not a linear pipeline: plays and artifacts are nodes, gates are the human approval points, and triggers are the edges that fire the next stage. Treating the workflow as a graph makes it automatable (accepted artifacts fire the next gate), parallelizable (independent branches run in separate worktrees), and auditable (node history is the record). The plays also form a separate adoption graph — start at the leaf plays and build outward. Read `references/graph.md` when designing or automating how phases trigger each other; the machine-readable form ships in `assets/workflow-graph.example.yaml`.
@@ -135,7 +137,7 @@ Organization-level examples to wire up during adoption:
 - `scripts/detect_bands.py` — deterministic control-band detection (Phase 6 reference implementation: rolling window, Western Electric rules, drift rule)
 - `scripts/gate_ledger.py` — hash-chained approval ledger: every gate decision is a committed, tamper-evident record; the release gate verifies `RELEASE_APPROVAL=ledger:<id>` against it
 - `scripts/workflow_state.py` — deterministic workflow state runtime (`status`/`advance`/`check`): graph nodes advance only through matching, chain-verified ledger records
-- `scripts/check_plan_sync.py` — deterministic plan-sync enforcement: implementation changes require an approved plan.md manifest in PR/CI or pre-commit mode
+- `scripts/check_plan_sync.py` — deterministic plan-sync enforcement: implementation changes require an approved plan.md manifest in PR/CI or pre-commit mode, including projects in repository subdirectories
 - `scripts/sync_issues.py` — GitHub issue intake for the product engineering agent (`pull` open issues into `org/intake/github/`, `push` a feature ticket)
 - `scripts/org_status.py` — agent busy/idle and review-queue management (`status`, `agent`, `review`) against `org/status.yaml`
 - `scripts/intake.py` — form/email demand intake into `org/intake/` (`add`, `list`)

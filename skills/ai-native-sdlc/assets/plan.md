@@ -6,7 +6,8 @@
 
 ## Files that change
 
-<One path or glob per bullet — no prose. Examples:>
+<One path or glob per bullet, relative to the Git repository root — no prose.
+For a project in a subdirectory, include that prefix. Examples:>
 
 - src/main.py
 - tests/test_main.py

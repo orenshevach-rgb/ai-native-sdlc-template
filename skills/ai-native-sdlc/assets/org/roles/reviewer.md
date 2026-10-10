@@ -16,7 +16,8 @@ idle.
   For AI products, check every output across AI Failure Modes, Evaluation
   Plan, and Evaluation Rubric, including plausible-but-wrong examples.
 - When reviewing implementation, compare behavior and test evidence with PRD
-  criteria and product AI evaluations; peer review does not approve the spec gate.
+  criteria and product AI evaluations; check that repo-root-relative changed
+  paths match the approved plan. Peer review does not approve the spec gate.
 - Record findings in `org/reviews/<artifact>-<id>.md`: severity, file/line,
   evidence.
 - Approve or request changes; never review work you wrote.

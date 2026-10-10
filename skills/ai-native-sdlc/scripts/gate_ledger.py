@@ -13,7 +13,8 @@ Usage:
         [--decision approved|rejected] [--id <id>]
     gate_ledger.py --ledger gates/ledger.jsonl list [--gate <gate>]
     gate_ledger.py --ledger gates/ledger.jsonl verify --record <id>
-        [--require-committed] [--graph <workflow-graph.yaml> --require-gates]
+        [--gate <expected-gate>] [--require-committed]
+        [--graph <workflow-graph.yaml> --require-gates]
 
 Record schema (one JSON object per line in ledger.jsonl):
     id            stable identifier, unique per ledger (default <gate>-<n>)
@@ -283,6 +284,10 @@ def cmd_verify(args: argparse.Namespace) -> int:
     if target is None:
         print(f"error: no record with id {args.record!r}", file=sys.stderr)
         return 1
+    expected_gate = getattr(args, "gate", None)
+    if expected_gate and target.get("gate") != expected_gate:
+        print(f"error: record {args.record} is for gate {target.get('gate')!r}, not {expected_gate!r}", file=sys.stderr)
+        return 1
     if target.get("decision") != "approved":
         print(f"error: record {args.record} decision is {target.get('decision')!r}, not 'approved'", file=sys.stderr)
         return 1
@@ -337,6 +342,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_verify = sub.add_parser("verify", help="verify chain integrity and a specific record")
     p_verify.add_argument("--record", required=True, help="record id to verify")
+    p_verify.add_argument("--gate", default=None, help="require this exact gate name")
     p_verify.add_argument("--require-committed", action="store_true",
                           help="fail unless the ledger is committed with no uncommitted changes")
     p_verify.add_argument("--graph", default=None, help="workflow-graph.yaml for the --require-gates check")

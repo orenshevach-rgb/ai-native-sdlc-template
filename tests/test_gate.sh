@@ -36,6 +36,8 @@ check "terraform apply -target=module.production (was a bypass)" 2 -- "terraform
 check "helm upgrade prod-app (was a bypass)" 2 -- "helm upgrade prod-app"
 check "kubectl apply -n prod -f deploy.yaml" 2 -- "kubectl apply -n prod -f deploy.yaml"
 check "git push triggers no deploy gate when cmd is deploy+production word combo" 2 -- "make deploy production"
+check "read followed by deploy cannot bypass gate" 2 -- "cat notes.txt && kubectl deploy --env=production"
+check "command substitution cannot bypass gate" 2 -- 'cat $(kubectl deploy --env=production)'
 
 # --- must ALLOW (exit 0): not deploys, or read-only ---
 check "cat docs/production-deploy.md (read, was a false positive)" 0 -- "cat docs/production-deploy.md"
@@ -87,6 +89,18 @@ check "ledger: uncommitted ledger blocks" 2 RELEASE_APPROVAL=ledger:release_auth
 git -C "$LEDGER_TMP" add -A && git -C "$LEDGER_TMP" commit -q -m "gates: record release authorization"
 # Committed, valid record allows the deploy.
 check "ledger: committed valid record allows" 0 RELEASE_APPROVAL=ledger:release_authorization-001 GATE_LEDGER_SCRIPT="$LEDGER_SCRIPT" GATE_LEDGER_FILE="$LEDGER_FILE" -- "kubectl deploy --env=production"
+# An approval for another gate must never authorize production.
+python3 "$LEDGER_SCRIPT" --ledger "$LEDGER_FILE" record --gate product_owner_accept \
+  --artifact "intent.md" --approver "Ada" --evidence "intent review" \
+  --id product_owner_accept-001 >/dev/null 2>&1
+git -C "$LEDGER_TMP" add -A && git -C "$LEDGER_TMP" commit -q -m "gates: record intent approval"
+check "ledger: wrong gate blocks" 2 RELEASE_APPROVAL=ledger:product_owner_accept-001 GATE_LEDGER_SCRIPT="$LEDGER_SCRIPT" GATE_LEDGER_FILE="$LEDGER_FILE" -- "kubectl deploy --env=production"
+# A decision to skip deployment is not a release authorization.
+python3 "$LEDGER_SCRIPT" --ledger "$LEDGER_FILE" record --gate release_authorization \
+  --artifact "no deployment" --approver "Ada" --evidence "demo stops after merge" \
+  --decision rejected --id release_authorization-002 >/dev/null 2>&1
+git -C "$LEDGER_TMP" add -A && git -C "$LEDGER_TMP" commit -q -m "gates: record skipped release"
+check "ledger: rejected release blocks" 2 RELEASE_APPROVAL=ledger:release_authorization-002 GATE_LEDGER_SCRIPT="$LEDGER_SCRIPT" GATE_LEDGER_FILE="$LEDGER_FILE" -- "kubectl deploy --env=production"
 # Unknown record id blocks.
 check "ledger: unknown id blocks" 2 RELEASE_APPROVAL=ledger:release_authorization-999 GATE_LEDGER_SCRIPT="$LEDGER_SCRIPT" GATE_LEDGER_FILE="$LEDGER_FILE" -- "helm upgrade prod-app"
 # A tampered ledger (rewrite approver, same hash) blocks.

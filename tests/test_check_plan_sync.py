@@ -53,10 +53,10 @@ class PlanSyncTests(unittest.TestCase):
         path.write_text(text, encoding="utf-8")
         return path
 
-    def run_cli(self, *args: str) -> subprocess.CompletedProcess[str]:
+    def run_cli(self, *args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [sys.executable, str(SCRIPT), *args],
-            cwd=self.root,
+            cwd=cwd or self.root,
             capture_output=True,
             text=True,
         )
@@ -237,6 +237,36 @@ class PlanSyncTests(unittest.TestCase):
         res = self.run_cli("--hook")
         self.assertEqual(res.returncode, 1)
         self.assertIn("not approved", (res.stdout + res.stderr).lower())
+
+    def test_nested_project_pr_uses_its_plan_and_ignores_other_paths(self) -> None:
+        project = self.root / "movie-tv-tracker"
+        self.write("movie-tv-tracker/plan.md", PLAN.format(files="- movie-tv-tracker/src/new.py"))
+        self.commit("nested plan")
+        self.write("movie-tv-tracker/src/new.py", "NEW = 1\n")
+        self.write("other-project/extra.py", "EXTRA = 1\n")
+        self.commit("nested implementation and unrelated change")
+        res = self.run_cli("--base", "HEAD~1", "--head", "HEAD", cwd=project)
+        self.assertEqual(res.returncode, 0, res.stderr + res.stdout)
+
+    def test_nested_project_rejects_unplanned_implementation(self) -> None:
+        project = self.root / "movie-tv-tracker"
+        self.write("movie-tv-tracker/plan.md", PLAN.format(files="- movie-tv-tracker/src/base.py"))
+        self.commit("nested base plan")
+        self.write("movie-tv-tracker/src/new.py", "NEW = 1\n")
+        self.commit("unplanned nested change")
+        res = self.run_cli("--base", "HEAD~1", "--head", "HEAD", cwd=project)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("movie-tv-tracker/src/new.py", res.stderr)
+
+    def test_nested_project_hook_uses_staged_plan(self) -> None:
+        project = self.root / "movie-tv-tracker"
+        self.write("movie-tv-tracker/plan.md", PLAN.format(files="- movie-tv-tracker/src/base.py"))
+        self.commit("nested base plan")
+        self.write("movie-tv-tracker/src/new.py", "NEW = 1\n")
+        self.write("movie-tv-tracker/plan.md", PLAN.format(files="- movie-tv-tracker/src/base.py\n- movie-tv-tracker/src/new.py"))
+        git(self.root, "add", "-A")
+        res = self.run_cli("--hook", cwd=project)
+        self.assertEqual(res.returncode, 0, res.stderr + res.stdout)
 
 
 def git(repo: Path, *args: str) -> None:

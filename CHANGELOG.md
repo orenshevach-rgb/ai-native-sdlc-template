@@ -71,6 +71,13 @@ semver; keep `plugin.json` and the `version` field in SKILL.md in sync
 
 ### Changed
 
+- Project-specific workflows can end after merge when the owner explicitly
+  skips deployment; guidance records a rejected release decision and keeps
+  production release authorization separate.
+- Release ledger verification now requires the `release_authorization` gate;
+  read-only commands cannot mask a production deploy in a compound command.
+- Plan-sync checks now work for projects nested inside a Git repository;
+  planned paths are defined relative to the repository root.
 - `assets/plan.md` — "Files that change" is now a bullet list of exact paths or
   globs so `check_plan_sync.py` can treat the plan as a machine-readable
   manifest.

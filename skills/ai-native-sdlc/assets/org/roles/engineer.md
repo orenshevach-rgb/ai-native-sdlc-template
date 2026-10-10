@@ -15,6 +15,8 @@ Turns approved specs and plans into tested code.
 - For a product with AI outputs, implement and run the PRD Evaluation Plan and
   Rubric, including plausible-but-wrong cases, alongside behavioral tests.
 - Implement per the approved plan; write tests alongside code.
+- List planned files relative to the Git repository root, including any
+  project subdirectory, so plan-sync checks match the implementation diff.
 - Verify before asking for review (run tests/build/lint; fix failures first).
 - Request a peer review when done; address findings; never self-approve.
 - Commit artifacts with evidence; update `org/status.yaml` when busy/idle.

@@ -91,8 +91,10 @@ python3 scripts/check_plan_sync.py --hook --graph workflow-graph.yaml
 ```
 
 `plan.md`'s `## Files that change` section is a bullet list of exact paths or
-globs (no prose). A change that departs from the approved manifest must add the
-file to that section in the same change set; editing prose or toggling Status
+globs relative to the Git repository root (no prose). Run the checker from the
+project directory, even when the project is nested in a larger repository. A
+change that departs from the approved manifest must add the file to that section
+in the same change set; editing prose or toggling Status
 does not exempt unplanned files. Process artifacts (`docs/`, `gates/`, `org/`,
 evals, workflow-graph.yaml, etc.) never trigger the plan requirement.
 
@@ -174,6 +176,12 @@ Reviews are bidirectional: the agent reviews incoming PRs and addresses review c
 The build phase used hooks as guardrails (allow or block, no human involved). A hook can also ask — pausing an action until a specific person approves — which is what release gating needs. Engineering leadership, with change management and compliance, lists the human approval gates that must survive (change sign-off, release authorization, edits to protected paths). Each gate becomes a hook script that can allow, ask, or block. Team hooks live in the repo's settings file (`.claude/settings.json` in Claude Code); non-negotiable hooks live in managed settings owned by platform/IT, where engineers cannot switch them off. A block should explain itself: the reason and the route to approval appear in the agent's output.
 
 The release gate is the canonical example: `assets/production-gate.sh` blocks any production deploy unless a release authorization is present, exiting 2 (block) with the reason. A wiring example ships as `assets/hook-settings.example.json`, and the worked example for a regulated enterprise (permissions, sandbox, credential controls, managed hooks and MCP, version floor) ships as `assets/managed-settings.example.json`.
+
+When the product owner decides a project will stop after merge with no
+production deployment, record the decision and shorten only that project's
+workflow graph as described in `references/graph.md`. This is a scope decision,
+not release authorization. The hook must still reject the skipped decision if
+someone later tries to deploy.
 
 **Measure.** Leading: time spent waiting on each approval gate (every hook decision logged with a timestamp and an allow or block verdict). Lagging: gate violations reaching production before and after hooks.
 

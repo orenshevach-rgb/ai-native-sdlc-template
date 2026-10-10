@@ -12,7 +12,7 @@
 
 ## Files
 
-<Files changed — must match plan.md "Files that change", or plan.md was
+<Repo-root-relative files changed — must match plan.md "Files that change", or plan.md was
 updated in this same PR.>
 
 ## Evidence (verified before requesting review)
